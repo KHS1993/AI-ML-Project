@@ -1,6 +1,7 @@
 import pandas as pd 
 import numpy as np
 from sklearn.metrics import mean_absolute_error
+from sklearn.linear_model import LinearRegression
 
 df = pd.read_csv("data/energydata_complete.csv")
 
@@ -52,3 +53,12 @@ print("Number of baseline predictions:", len(baseline_predictions))
 baseline_mae = mean_absolute_error(y_val, baseline_predictions) 
 
 print("Baseline MAE:", baseline_mae) 
+
+linear_model = LinearRegression()
+
+linear_model.fit(X_train, y_train)
+
+linear_predictions = linear_model.predict(X_val)
+linear_mae = mean_absolute_error(y_val, linear_predictions)
+
+print("Linear Regression MAE:", linear_mae)
