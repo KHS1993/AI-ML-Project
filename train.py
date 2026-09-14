@@ -71,36 +71,30 @@ linear_mae = mean_absolute_error(y_val, linear_predictions)
 
 print("Linear Regression MAE:", linear_mae)
 
-depths = [3, 5, 7, 10]
 
-for depth in depths:
-    tree_model = DecisionTreeRegressor(
-        max_depth=depth,
-        random_state=42
-    )
+tree_model = DecisionTreeRegressor(
+    max_depth=7,
+    random_state=42
+)
 
-    tree_model.fit(X_train, y_train)
-
-    train_predictions = tree_model.predict(X_train)
-    val_predictions = tree_model.predict(X_val)
-
-    train_mae = mean_absolute_error(y_train, train_predictions)
-    val_mae = mean_absolute_error(y_val, val_predictions)
-
-    print(
-        f"Depth {depth} | "
-        f"Train MAE: {train_mae:.2f} | "
-        f"Validation MAE: {val_mae:.2f}"
-    )
+tree_model.fit(X_train, y_train)
 
 tree_train_predictions = tree_model.predict(X_train)
+tree_val_predictions = tree_model.predict(X_val)
 
 tree_train_mae = mean_absolute_error(
     y_train,
     tree_train_predictions
 )
 
+tree_val_mae = mean_absolute_error(
+    y_val,
+    tree_val_predictions
+)
+
 print("Decision Tree Train MAE:", tree_train_mae)
+print("Decision Tree Validation MAE:", tree_val_mae)
+
 
 
 forest_model = RandomForestRegressor(
