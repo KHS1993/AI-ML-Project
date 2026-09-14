@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.metrics import mean_absolute_error
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 
 df = pd.read_csv("data/energydata_complete.csv")
 
@@ -85,3 +86,27 @@ tree_train_mae = mean_absolute_error(
 
 print("Decision Tree Train MAE:", tree_train_mae)
 print("Decision Tree Validation MAE:", tree_mae)
+
+
+forest_model = RandomForestRegressor(
+n_estimators=100,
+random_state=42
+
+)
+
+forest_model.fit(X_train, y_train)
+forest_predictions = forest_model.predict(X_val)
+
+forest_mae = mean_absolute_error(y_val, forest_predictions)
+
+print("Random Forest MAE:", forest_mae)
+
+forest_train_predictions = forest_model.predict(X_train)
+
+forest_train_mae = mean_absolute_error(
+    y_train,
+    forest_train_predictions
+)
+
+print("Random Forest Train MAE:", forest_train_mae)
+print("Random Forest Validation MAE:", forest_mae)
