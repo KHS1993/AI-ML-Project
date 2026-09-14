@@ -64,7 +64,10 @@ linear_mae = mean_absolute_error(y_val, linear_predictions)
 
 print("Linear Regression MAE:", linear_mae)
 
-tree_model = DecisionTreeRegressor(random_state=42)
+tree_model = DecisionTreeRegressor( 
+max_depth=5,
+random_state=4
+)
 tree_model.fit(X_train, y_train)
 
 tree_predictions = tree_model.predict(X_val)
