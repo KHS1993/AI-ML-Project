@@ -10,6 +10,9 @@ df = pd.read_csv("data/energydata_complete.csv")
 print(df.head())
 
 df["date"] = pd.to_datetime(df["date"])
+df["hour"] = df["date"].dt.hour
+df["day_of_week"] = df["date"].dt.dayofweek
+df["is_weekend"] = df["day_of_week"].isin([5, 6]).astype(int)
 
 target = "Appliances"
 
@@ -19,7 +22,10 @@ features = [
 "T2",
 "RH_2",
 "T_out",
-"RH_out"
+"RH_out",
+"hour",
+"day_of_week",
+"is_weekend"
 ]
 
 x = df[features]
