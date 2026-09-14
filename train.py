@@ -1,4 +1,6 @@
 import pandas as pd 
+import numpy as np
+from sklearn.metrics import mean_absolute_error
 
 df = pd.read_csv("data/energydata_complete.csv")
 
@@ -40,3 +42,13 @@ y_test = y.iloc[val_end:]
 print("Train:", len(X_train))
 print("Validation:", len(X_val))
 print("Test:", len(X_test))
+
+baseline_value = y_train.mean()
+baseline_predictions = np.full(len(y_val), baseline_value)
+
+print("Baseline value:", baseline_value)
+print("Number of baseline predictions:", len(baseline_predictions))
+
+baseline_mae = mean_absolute_error(y_val, baseline_predictions) 
+
+print("Baseline MAE:", baseline_mae) 
