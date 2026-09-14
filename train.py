@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_absolute_error
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
 
 df = pd.read_csv("data/energydata_complete.csv")
 
@@ -62,3 +63,22 @@ linear_predictions = linear_model.predict(X_val)
 linear_mae = mean_absolute_error(y_val, linear_predictions)
 
 print("Linear Regression MAE:", linear_mae)
+
+tree_model = DecisionTreeRegressor(random_state=42)
+tree_model.fit(X_train, y_train)
+
+tree_predictions = tree_model.predict(X_val)
+
+tree_mae = mean_absolute_error(y_val, tree_predictions)
+
+print("Decision Tree MAE:", tree_mae) 
+
+tree_train_predictions = tree_model.predict(X_train)
+
+tree_train_mae = mean_absolute_error(
+    y_train,
+    tree_train_predictions
+)
+
+print("Decision Tree Train MAE:", tree_train_mae)
+print("Decision Tree Validation MAE:", tree_mae)
