@@ -287,3 +287,17 @@ print("\nTest:")
 print(
     X_test["T_out"].describe()
 )
+
+# Samma baseline som tidigare: medelvärdet från träningsdatan.
+baseline_test_predictions = np.full(
+    len(y_test),
+    baseline_value
+)
+
+baseline_test_mae = mean_absolute_error(
+    y_test,
+    baseline_test_predictions
+)
+
+print(f"Baseline Test MAE: {baseline_test_mae:.2f} Wh")
+print(f"Decision Tree Test MAE: {tree_test_mae:.2f} Wh")
