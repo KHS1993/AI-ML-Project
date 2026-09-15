@@ -119,3 +119,12 @@ forest_train_mae = mean_absolute_error(
 
 print("Random Forest Train MAE:", forest_train_mae)
 print("Random Forest Validation MAE:", forest_mae)
+
+tree_test_predictions = tree_model.predict(X_test)
+
+tree_test_mae = mean_absolute_error(
+  y_test,
+  tree_test_predictions 
+)
+
+print("Decision tree Test MAE:", tree_test_mae)
