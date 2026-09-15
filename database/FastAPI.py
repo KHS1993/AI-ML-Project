@@ -1,8 +1,28 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Depends
+
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from database.connection import SessionLocal, get_db
+from database.load_csv import load_users_from_csv
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Starting Backend.")
+
+    db = SessionLocal()
+
+    try:
+        load_users_from_csv(db)
+    finally:
+        db.close()
+
+    print("Database Loaded.")
+
+    yield
+    print("Apllication Stopped.")
 
 app = FastAPI()
 
