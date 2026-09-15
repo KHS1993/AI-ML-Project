@@ -128,3 +128,11 @@ tree_test_mae = mean_absolute_error(
 )
 
 print("Decision tree Test MAE:", tree_test_mae)
+
+print("Train Appliances mean:", y_train.mean())
+print("Validation Appliances mean:", y_val.mean())
+print("Test Appliances mean:", y_test.mean())
+
+print("Train T_out mean:", X_train["T_out"].mean())
+print("Validation T_out mean:", X_val["T_out"].mean())
+print("Test T_out mean:", X_test["T_out"].mean())
