@@ -136,3 +136,14 @@ print("Test Appliances mean:", y_test.mean())
 print("Train T_out mean:", X_train["T_out"].mean())
 print("Validation T_out mean:", X_val["T_out"].mean())
 print("Test T_out mean:", X_test["T_out"].mean())
+
+print("\nT_out statistics")
+
+print("Train:")
+print(X_train["T_out"].describe())
+
+print("\nValidation:")
+print(X_val["T_out"].describe())
+
+print("\nTest:")
+print(X_test["T_out"].describe())
