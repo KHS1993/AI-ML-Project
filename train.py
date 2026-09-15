@@ -77,14 +77,14 @@ print("Test:", len(X_test))
 
 baseline_value = y_train.mean()
 
-baseline_predictions = np.full(
+baseline_val_predictions = np.full(
     len(y_val),
-    baseline_value
+    baseline_value,
 )
 
-baseline_mae = mean_absolute_error(
+baseline_val_mae = mean_absolute_error(
     y_val,
-    baseline_predictions
+    baseline_val_predictions,
 )
 
 
@@ -96,14 +96,14 @@ linear_model = LinearRegression()
 
 linear_model.fit(
     X_train,
-    y_train
+    y_train,
 )
 
-linear_predictions = linear_model.predict(X_val)
+linear_val_predictions = linear_model.predict(X_val)
 
-linear_mae = mean_absolute_error(
+linear_val_mae = mean_absolute_error(
     y_val,
-    linear_predictions
+    linear_val_predictions,
 )
 
 
@@ -113,12 +113,12 @@ linear_mae = mean_absolute_error(
 
 tree_model = DecisionTreeRegressor(
     max_depth=7,
-    random_state=42
+    random_state=42,
 )
 
 tree_model.fit(
     X_train,
-    y_train
+    y_train,
 )
 
 tree_train_predictions = tree_model.predict(X_train)
@@ -126,12 +126,12 @@ tree_val_predictions = tree_model.predict(X_val)
 
 tree_train_mae = mean_absolute_error(
     y_train,
-    tree_train_predictions
+    tree_train_predictions,
 )
 
 tree_val_mae = mean_absolute_error(
     y_val,
-    tree_val_predictions
+    tree_val_predictions,
 )
 
 
@@ -141,12 +141,12 @@ tree_val_mae = mean_absolute_error(
 
 forest_model = RandomForestRegressor(
     n_estimators=100,
-    random_state=42
+    random_state=42,
 )
 
 forest_model.fit(
     X_train,
-    y_train
+    y_train,
 )
 
 forest_train_predictions = forest_model.predict(X_train)
@@ -154,12 +154,12 @@ forest_val_predictions = forest_model.predict(X_val)
 
 forest_train_mae = mean_absolute_error(
     y_train,
-    forest_train_predictions
+    forest_train_predictions,
 )
 
 forest_val_mae = mean_absolute_error(
     y_val,
-    forest_val_predictions
+    forest_val_predictions,
 )
 
 
@@ -175,8 +175,8 @@ results = pd.DataFrame({
         "Random Forest",
     ],
     "Validation MAE": [
-        baseline_mae,
-        linear_mae,
+        baseline_val_mae,
+        linear_val_mae,
         tree_val_mae,
         forest_val_mae,
     ],
@@ -194,22 +194,22 @@ print("\nTrain vs validation")
 
 print(
     "Decision Tree Train MAE:",
-    tree_train_mae
+    tree_train_mae,
 )
 
 print(
     "Decision Tree Validation MAE:",
-    tree_val_mae
+    tree_val_mae,
 )
 
 print(
     "Random Forest Train MAE:",
-    forest_train_mae
+    forest_train_mae,
 )
 
 print(
     "Random Forest Validation MAE:",
-    forest_val_mae
+    forest_val_mae,
 )
 
 
@@ -221,14 +221,22 @@ tree_test_predictions = tree_model.predict(X_test)
 
 tree_test_mae = mean_absolute_error(
     y_test,
-    tree_test_predictions
+    tree_test_predictions,
+)
+
+baseline_test_predictions = np.full(
+    len(y_test),
+    baseline_value,
+)
+
+baseline_test_mae = mean_absolute_error(
+    y_test,
+    baseline_test_predictions,
 )
 
 print("\nSelected model test performance")
-print(
-    "Decision Tree Test MAE:",
-    tree_test_mae
-)
+print(f"Baseline Test MAE: {baseline_test_mae:.2f} Wh")
+print(f"Decision Tree Test MAE: {tree_test_mae:.2f} Wh")
 
 
 # --------------------------------------------------
@@ -239,17 +247,17 @@ print("\nAppliances mean by split")
 
 print(
     "Train:",
-    y_train.mean()
+    y_train.mean(),
 )
 
 print(
     "Validation:",
-    y_val.mean()
+    y_val.mean(),
 )
 
 print(
     "Test:",
-    y_test.mean()
+    y_test.mean(),
 )
 
 
@@ -257,17 +265,17 @@ print("\nT_out mean by split")
 
 print(
     "Train:",
-    X_train["T_out"].mean()
+    X_train["T_out"].mean(),
 )
 
 print(
     "Validation:",
-    X_val["T_out"].mean()
+    X_val["T_out"].mean(),
 )
 
 print(
     "Test:",
-    X_test["T_out"].mean()
+    X_test["T_out"].mean(),
 )
 
 
@@ -287,17 +295,3 @@ print("\nTest:")
 print(
     X_test["T_out"].describe()
 )
-
-# Samma baseline som tidigare: medelvärdet från träningsdatan.
-baseline_test_predictions = np.full(
-    len(y_test),
-    baseline_value
-)
-
-baseline_test_mae = mean_absolute_error(
-    y_test,
-    baseline_test_predictions
-)
-
-print(f"Baseline Test MAE: {baseline_test_mae:.2f} Wh")
-print(f"Decision Tree Test MAE: {tree_test_mae:.2f} Wh")
