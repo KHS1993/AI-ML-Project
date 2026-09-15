@@ -61,4 +61,5 @@ if submit_button:
     except Exception as e:
         st.error(f"Kunde inte nå API:et. Kontrollera att FastAPI-servern är igång! Fel: {e}")
 
+
         
