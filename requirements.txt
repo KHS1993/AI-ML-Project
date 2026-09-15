@@ -9,3 +9,5 @@ jupyter
 uv
 uvicorn
 sqlalchemy
+python-dotenv
+psycopg2-binary
