@@ -10,4 +10,5 @@ uv
 uvicorn
 sqlalchemy
 python-dotenv
+psycopg2
 psycopg2-binary

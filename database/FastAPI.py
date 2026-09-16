@@ -32,15 +32,16 @@ async def health_Check():
 
 @app.get("/test-db")
 def test_database(db: Session = Depends(get_db)):
+    db.execute(text("SELECT 1"))
     return {"message": "Database connected!"}
 
 @app.get("/test-table")
 def get_table(db: Session = Depends(get_db)):
-    query = text("SELECT * FROM test")
+    query = text("SELECT COUNT(*) FROM test")
 
     result = db.execute(query)
 
-    table = [dict(row._mapping) for row in result]
+##    table = [dict(row._mapping) for row in result]
 
-    return table
+    return {"rows": result.scalar()}
 
