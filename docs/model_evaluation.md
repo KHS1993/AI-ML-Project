@@ -2,12 +2,15 @@
 
 ## Syfte
 
-Syftet med denna utvärdering är att undersöka hur väl våra
-regressionsmodeller kan uppskatta hushållsapparaternas energianvändning.
+Syftet med modellutvärderingen är att jämföra våra regressionsmodeller
+och undersöka hur väl de kan uppskatta hushållsapparaternas
+energianvändning.
 
-Vi jämför modellerna både mot varandra och mot en enkel baseline.
-Vi undersöker även överanpassning, modellval och hur den valda
-modellen fungerar på en senare testperiod.
+Vi jämför modellerna med en enkel baseline och använder flera
+regressionsmått för att bedöma resultaten.
+
+Vi undersöker även skillnaden mellan train och validation för att
+upptäcka möjlig overfitting.
 
 ---
 
@@ -15,16 +18,17 @@ modellen fungerar på en senare testperiod.
 
 Projektets target är `Appliances`.
 
-`Appliances` beskriver hushållsapparaternas energianvändning i Wh
-under varje mätintervall.
+`Appliances` representerar hushållsapparaternas energianvändning
+i Wh under varje mätintervall.
 
-Eftersom target är ett numeriskt värde är detta ett regressionsproblem.
+Eftersom target är ett kontinuerligt numeriskt värde är detta
+ett regressionsproblem.
 
 ---
 
 ## Features
 
-Den första modellen använder följande klimatvariabler:
+Modellerna använder följande klimatvariabler:
 
 - `T1`
 - `RH_1`
@@ -33,98 +37,112 @@ Den första modellen använder följande klimatvariabler:
 - `T_out`
 - `RH_out`
 
-För att ge modellerna mer information om när mätningen sker skapade
-vi även tre tidsbaserade features från kolumnen `date`:
+Vi skapade även tre tidsbaserade features från kolumnen `date`:
 
-- `hour` – timmen på dygnet
-- `day_of_week` – veckodagen
-- `is_weekend` – 1 för lördag/söndag och 0 för vardag
+- `hour`
+- `day_of_week`
+- `is_weekend`
 
-Detta är feature engineering, eftersom nya features skapas från
-information som redan finns i datasetet.
+Syftet är att ge modellerna information om när observationen gjordes,
+eftersom energianvändningen kan följa olika mönster vid olika tider
+och dagar.
 
 ---
 
-## Tidsbaserad datauppdelning
+## Datauppdelning
 
-Datasetet innehåller tidsordnade observationer.
+Datasetet är tidsordnat.
 
-Vi valde därför att inte blanda observationerna slumpmässigt.
-Istället behöll vi tidsordningen och delade datasetet i:
+Därför behöll vi tidsordningen istället för att blanda observationerna
+slumpmässigt.
 
-| Datadel | Andel | Observationer | Syfte |
+| Datadel | Andel | Observationer | Användning |
 |---|---:|---:|---|
 | Train | 70 % | 13 814 | Träna modellerna |
 | Validation | 15 % | 2 960 | Jämföra modeller och välja inställningar |
-| Test | 15 % | 2 961 | Slutbedöma den valda modellen |
+| Test | 15 % | 2 961 | Slutlig utvärdering |
 
-De äldsta observationerna används för träning och de senaste
-observationerna används för test.
+De äldsta observationerna används för träning och de senaste för test.
 
-Det gör utvärderingen mer lik en situation där en modell tränas
-på historisk data och sedan används på en senare period.
+Det gör utvärderingen mer lik ett verkligt scenario där historiska
+mätningar används för att göra prediktioner på en senare tidsperiod.
 
 ---
 
 ## Baseline
 
-Vi skapade en enkel baseline som alltid gissar samma värde.
+Som referens skapade vi en enkel baseline.
 
-Baselinevärdet är medelvärdet av `Appliances` i träningsdatan:
+Baselinen förutsäger alltid medelvärdet av target i träningsdatan.
+
+Baselinevärdet är cirka:
 
 **98,78 Wh**
 
-Baselinen använder alltså inte temperatur, luftfuktighet eller
-tidsinformation.
+Baselinen använder alltså inga features.
 
-Syftet med baselinen är att kontrollera om våra Machine Learning-
-modeller faktiskt tillför något jämfört med en mycket enkel gissning.
+Syftet är att kontrollera om Machine Learning-modellerna faktiskt
+ger bättre resultat än en mycket enkel metod.
 
 ---
 
-## Utvärderingsmått
+# Utvärderingsmått
 
-Vi använder MAE, Mean Absolute Error.
+Vi använder tre regressionsmått:
 
-MAE beskriver hur stort modellens absoluta fel är i genomsnitt.
+## MAE
 
-Exempel:
+MAE står för Mean Absolute Error.
 
-Om en modell har:
+Det visar hur stort det absoluta prediktionsfelet är i genomsnitt.
 
-`MAE = 50 Wh`
-
-betyder det att modellens uppskattningar i genomsnitt ligger ungefär
-50 Wh från de verkliga värdena.
+Ett MAE på 50 Wh betyder att modellens prediktioner i genomsnitt
+avviker ungefär 50 Wh från de verkliga värdena.
 
 Lägre MAE är bättre.
 
-MAE är inte en procentsats.
+## RMSE
+
+RMSE står för Root Mean Squared Error.
+
+Precis som MAE mäter det storleken på prediktionsfelet, men RMSE
+straffar stora fel hårdare.
+
+Lägre RMSE är bättre.
+
+## R²
+
+R² beskriver hur väl modellen fångar variationen i target jämfört
+med en enkel referens.
+
+Ett högre värde är bättre.
+
+Ett R² nära 0 betyder att modellen ger liten förbättring jämfört
+med en enkel referens.
+
+Ett negativt R² betyder att modellen presterar sämre än referensen
+på den aktuella datan.
+
+R² ska inte tolkas som procent korrekt.
 
 ---
 
-# Modelljämförelse
+# Jämförelse på validation-data
 
-Vi jämförde följande:
+Alla modeller tränades på samma train-data och jämfördes på samma
+validation-data.
 
-- Baseline
-- Linear Regression
-- Decision Tree Regressor
-- Random Forest Regressor
+| Modell | MAE | RMSE | R² |
+|---|---:|---:|---:|
+| Baseline | 53,97 Wh | 92,39 Wh | -0,003 |
+| Linear Regression | 53,70 Wh | 91,05 Wh | 0,026 |
+| Decision Tree | **49,03 Wh** | **90,77 Wh** | **0,032** |
+| Random Forest | 59,42 Wh | 102,82 Wh | -0,243 |
 
-Alla modeller jämfördes på samma validation-period.
+Decision Tree hade lägst MAE och RMSE samt högst R² på
+validation-datan bland modellerna vi testade.
 
-## Resultat på validation
-
-| Modell | Validation MAE |
-|---|---:|
-| Baseline | 53,97 Wh |
-| Linear Regression | 53,70 Wh |
-| Decision Tree | **49,03 Wh** |
-| Random Forest | 59,42 Wh |
-
-Decision Tree hade lägst MAE på validation-datan och gav därför
-det bästa validation-resultatet av de modeller vi testade.
+Därför gav Decision Tree bäst validation-resultat i våra experiment.
 
 ---
 
@@ -132,213 +150,198 @@ det bästa validation-resultatet av de modeller vi testade.
 
 Linear Regression fick:
 
-**Validation MAE: 53,70 Wh**
+- MAE: 53,70 Wh
+- RMSE: 91,05 Wh
+- R²: 0,026
 
-Det var endast en liten förbättring jämfört med baselinen:
+Resultatet ligger nära baselinen.
 
-**Baseline MAE: 53,97 Wh**
-
-Det betyder att Linear Regression inte lyckades utnyttja våra
-features särskilt mycket bättre än den enkla baseline-gissningen.
+Det visar att modellen endast gav en liten förbättring jämfört med
+att alltid använda träningsdatans medelvärde.
 
 ---
 
 # Decision Tree
 
-## Första försöket
+## Begränsning av modellens komplexitet
 
-Den första versionen av Decision Tree hade inget begränsat träddjup.
+En tidigare obegränsad Decision Tree visade tydlig overfitting.
 
-Resultaten blev ungefär:
+Vi testade därför olika värden för `max_depth`.
 
-- Train MAE: 0,01 Wh
-- Validation MAE: 92,46 Wh
+Bland de testade inställningarna gav:
 
-Detta var ett tydligt tecken på overfitting.
+`max_depth=7`
 
-Modellen hade nästan memorerat träningsdatan, men fungerade mycket
-sämre på validation-datan.
+lägst validation-MAE.
 
----
-
-## Begränsning av trädet
-
-För att minska overfitting begränsade vi trädets maximala djup
-med parametern `max_depth`.
-
-Vi jämförde:
-
-| Max depth | Train MAE | Validation MAE |
-|---:|---:|---:|
-| 3 | 55,23 Wh | 50,91 Wh |
-| 5 | 52,96 Wh | 52,88 Wh |
-| 7 | 49,75 Wh | **49,03 Wh** |
-| 10 | 40,64 Wh | 49,67 Wh |
-
-`max_depth=7` hade lägst validation-MAE av de värden vi testade.
-
-Därför valde vi:
+Den valda modellen blev därför:
 
 `DecisionTreeRegressor(max_depth=7, random_state=42)`
-
-som vår Decision Tree-konfiguration.
 
 ---
 
 ## Train jämfört med validation
 
-Den valda modellen fick:
+Resultaten för Decision Tree blev:
 
-- Train MAE: 49,75 Wh
-- Validation MAE: 49,03 Wh
+| Mått | Train | Validation |
+|---|---:|---:|
+| MAE | 49,75 Wh | 49,03 Wh |
+| RMSE | 91,23 Wh | 90,77 Wh |
+| R² | 0,271 | 0,032 |
 
-Resultaten ligger nära varandra.
+MAE och RMSE ligger mycket nära varandra mellan train och validation.
 
-Det innebär att den tydliga overfitting som fanns i det obegränsade
-trädet minskade kraftigt när vi begränsade trädets djup.
+Det betyder att den extrema overfitting som fanns i det obegränsade
+trädet minskade tydligt efter att modellens djup begränsades.
+
+R² sjunker däremot från 0,271 på train till 0,032 på validation,
+vilket visar att modellen fortfarande har begränsad förmåga att
+förklara variationen i ny data.
 
 ---
 
 # Random Forest
 
-Random Forest med 100 träd fick:
+Random Forest fick:
 
-- Train MAE: 11,64 Wh
-- Validation MAE: 59,42 Wh
+| Mått | Train | Validation |
+|---|---:|---:|
+| MAE | 11,64 Wh | 59,42 Wh |
+| RMSE | 24,58 Wh | 102,82 Wh |
+| R² | 0,947 | -0,243 |
 
-Skillnaden mellan train och validation är stor.
+Skillnaden mellan train och validation är mycket stor.
 
-Det tyder på att Random Forest lärde sig träningsdatan betydligt
-bättre än den kunde generalisera till validation-perioden.
+Random Forest fungerar mycket bra på träningsdatan men betydligt
+sämre på validation-datan.
 
-Random Forest fick dessutom sämre validation-MAE än både Decision Tree,
-Linear Regression och baselinen.
+Det är ett tydligt tecken på overfitting.
 
-Därför valdes den inte.
+Modellen valdes därför inte.
 
 ---
 
-# Val av modell
+# Modellval
 
-Utifrån validation-resultaten valde vi:
+Vi valde:
 
 **Decision Tree med `max_depth=7`**
 
-Modellen valdes eftersom den hade lägst validation-MAE bland de
-modeller och inställningar vi testade.
+Beslutet baserades på resultaten från validation-datan.
 
-Det är viktigt att modellen valdes utifrån validation-datan och
-inte utifrån testdatan.
+Decision Tree hade:
 
-Testdatan sparades till den slutliga utvärderingen.
+- lägst MAE
+- lägst RMSE
+- högst R²
+
+bland modellerna vi testade på samma validation-period.
+
+Testdatan användes inte för det ursprungliga modellvalet.
 
 ---
 
 # Sluttest
 
-Efter modellvalet utvärderades Decision Tree på den reserverade
-testperioden.
+Efter modellvalet utvärderades Decision Tree på testperioden.
 
-Resultatet blev:
+## Resultat
 
-**Decision Tree Test MAE: 83,97 Wh**
+| Modell | MAE | RMSE | R² |
+|---|---:|---:|---:|
+| Baseline | **52,83 Wh** | **90,89 Wh** | cirka 0,000 |
+| Decision Tree | 83,97 Wh | 146,93 Wh | -1,614 |
 
-Detta var betydligt sämre än modellens validation-resultat:
+Decision Tree presterade betydligt sämre på testperioden än på
+validation-perioden.
 
-**Validation MAE: 49,03 Wh**
+Baselinen presterade även bättre än Decision Tree på samtliga
+testmått.
 
-Modellen generaliserade alltså betydligt sämre till den senare
-testperioden.
-
----
-
-## Jämförelse med baseline på testdata
-
-Vi utvärderade även samma baseline på testperioden.
-
-| Modell | Test MAE |
-|---|---:|
-| Baseline | **52,83 Wh** |
-| Decision Tree | 83,97 Wh |
-
-På testperioden presterade alltså baselinen bättre än vår valda
-Decision Tree-modell.
-
-Det betyder att vi inte har visat att Decision Tree ger bättre
-prediktioner än den enkla baseline-modellen på den senare testperioden.
+Det betyder att vår valda Decision Tree inte visade stabil
+generaliseringsförmåga till den senare testperioden.
 
 ---
 
-# Analys av skillnaden mellan tidsperioderna
+# Distribution shift
 
-För att bättre förstå varför testresultatet blev sämre jämförde vi
-bland annat utomhustemperaturen `T_out`.
+För att undersöka en möjlig förklaring till skillnaden mellan
+validation och test analyserade vi `T_out`.
 
-Medelvärden:
+Genomsnittlig utomhustemperatur:
 
-| Datadel | Genomsnittlig T_out |
+| Datadel | T_out |
 |---|---:|
 | Train | 5,72 °C |
 | Validation | 8,22 °C |
 | Test | 14,51 °C |
 
-Medianen för `T_out` var:
+Testperioden var alltså betydligt varmare än träningsperioden.
 
-- Train: cirka 5,67 °C
-- Validation: cirka 7,55 °C
-- Test: cirka 14,30 °C
+Medianen för `T_out` var också tydligt högre:
 
-Testperioden innehåller alltså betydligt varmare väderförhållanden
-än träningsperioden.
+- Train: 5,67 °C
+- Validation: 7,55 °C
+- Test: 14,30 °C
 
-Detta visar att fördelningen av åtminstone vissa features förändras
+Det visar att fördelningen av åtminstone vissa features förändras
 mellan tidsperioderna.
 
-Det kan beskrivas som distribution shift.
+Detta är ett exempel på distribution shift.
 
-Det är en möjlig bidragande faktor till det sämre testresultatet,
-men analysen visar inte att utomhustemperaturen ensam orsakar
-modellens höga testfel.
+Det kan bidra till att modellen generaliserar sämre på testperioden,
+men analysen bevisar inte att förändringen i `T_out` ensam orsakar
+det höga testfelet.
 
 ---
 
 # Slutsats
 
-Decision Tree med `max_depth=7` var den modell som presterade bäst
-på validation-datan.
+Decision Tree med `max_depth=7` gav bäst resultat på validation-data
+av de modeller vi testade.
 
-Den slog baselinen på validation:
+Validation-resultaten var:
 
-- Baseline: 53,97 Wh
-- Decision Tree: 49,03 Wh
+- MAE: 49,03 Wh
+- RMSE: 90,77 Wh
+- R²: 0,032
 
-På den senare testperioden blev resultatet däremot betydligt sämre:
+Modellen valdes därför utifrån faktiska resultat på validation-datan.
 
-- Baseline: 52,83 Wh
-- Decision Tree: 83,97 Wh
+Random Forest visade tydlig overfitting genom den stora skillnaden
+mellan train och validation.
 
-Det innebär att vår första modellversion inte generaliserade stabilt
-till den senare tidsperioden.
+På den senare testperioden presterade Decision Tree däremot sämre
+än baselinen:
 
-Projektets modellresultat ska därför inte tolkas som att vi har byggt
-en färdig eller produktionsklar modell.
+- Decision Tree MAE: 83,97 Wh
+- Baseline MAE: 52,83 Wh
 
-Däremot har utvärderingen visat hur olika modeller beter sig,
-hur overfitting kan upptäckas, hur validation kan användas för
-modellval och varför ett separat sluttest är viktigt.
+Testresultatet visar därför att den nuvarande modellen inte
+generaliserar stabilt till den senare tidsperioden.
+
+Projektets resultat ska inte tolkas som att modellen är
+produktionsklar.
+
+Utvärderingen visar däremot ett komplett ML-arbetsflöde där modeller
+jämförs på samma validation-data, flera regressionsmått används,
+overfitting analyseras och modellvalet baseras på faktiska resultat.
 
 ---
 
-# Möjliga förbättringar i fortsatt arbete
+# Möjliga framtida förbättringar
 
-Om projektet vidareutvecklas kan följande undersökas:
+Vid fortsatt utveckling skulle vi kunna undersöka:
 
-- mer representativ träningsdata från fler väder- och säsongsförhållanden
-- flera tidsbaserade validation-perioder
-- ytterligare relevant feature engineering
-- bättre regularisering av modellerna
-- tidigare energianvändning som feature, om användningsfallet tillåter det
+- fler tidsbaserade validation-perioder
+- TimeSeriesSplit
+- fler relevanta features
+- ytterligare regularisering
+- mer representativ träningsdata
 - ytterligare analys av distribution shift
+- tidigare energianvändning som feature om användningsfallet tillåter det
 
-Dessa förbättringar bör behandlas som nya experiment och inte som
-justeringar direkt mot den redan observerade testperioden.
+Nya modellförändringar bör utvärderas utan att optimera direkt mot
+den testperiod som redan har analyserats.

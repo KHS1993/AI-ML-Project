@@ -1,7 +1,11 @@
 import pandas as pd
 import numpy as np
 
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score,
+)
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
@@ -87,6 +91,18 @@ baseline_val_mae = mean_absolute_error(
     baseline_val_predictions,
 )
 
+baseline_val_rmse = np.sqrt(
+    mean_squared_error(
+        y_val,
+        baseline_val_predictions,
+    )
+)
+
+baseline_val_r2 = r2_score(
+    y_val,
+    baseline_val_predictions,
+)
+
 
 # --------------------------------------------------
 # 6. Linear Regression
@@ -106,6 +122,17 @@ linear_val_mae = mean_absolute_error(
     linear_val_predictions,
 )
 
+linear_val_rmse = np.sqrt(
+    mean_squared_error(
+        y_val,
+        linear_val_predictions,
+    )
+)
+
+linear_val_r2 = r2_score(
+    y_val,
+    linear_val_predictions,
+)
 
 # --------------------------------------------------
 # 7. Decision Tree
@@ -134,6 +161,29 @@ tree_val_mae = mean_absolute_error(
     tree_val_predictions,
 )
 
+tree_train_rmse = np.sqrt(
+    mean_squared_error(
+        y_train,
+        tree_train_predictions,
+    )
+)
+
+tree_val_rmse = np.sqrt(
+    mean_squared_error(
+        y_val,
+        tree_val_predictions,
+    )
+)
+
+tree_train_r2 = r2_score(
+    y_train,
+    tree_train_predictions,
+)
+
+tree_val_r2 = r2_score(
+    y_val,
+    tree_val_predictions,
+)
 
 # --------------------------------------------------
 # 8. Random Forest
@@ -162,6 +212,29 @@ forest_val_mae = mean_absolute_error(
     forest_val_predictions,
 )
 
+forest_train_rmse = np.sqrt(
+    mean_squared_error(
+        y_train,
+        forest_train_predictions,
+    )
+)
+
+forest_val_rmse = np.sqrt(
+    mean_squared_error(
+        y_val,
+        forest_val_predictions,
+    )
+)
+
+forest_train_r2 = r2_score(
+    y_train,
+    forest_train_predictions,
+)
+
+forest_val_r2 = r2_score(
+    y_val,
+    forest_val_predictions,
+)
 
 # --------------------------------------------------
 # 9. Jämför modeller på validation-data
@@ -180,37 +253,49 @@ results = pd.DataFrame({
         tree_val_mae,
         forest_val_mae,
     ],
+    "Validation RMSE": [
+        baseline_val_rmse,
+        linear_val_rmse,
+        tree_val_rmse,
+        forest_val_rmse,
+    ],
+    "Validation R2": [
+        baseline_val_r2,
+        linear_val_r2,
+        tree_val_r2,
+        forest_val_r2,
+    ],
 })
 
 print("\nModel comparison")
 print(results)
 
-
 # --------------------------------------------------
 # 10. Kontrollera overfitting
 # --------------------------------------------------
 
-print("\nTrain vs validation")
+print("\nDecision Tree - Train vs validation")
 
-print(
-    "Decision Tree Train MAE:",
-    tree_train_mae,
-)
+print(f"Train MAE: {tree_train_mae:.2f}")
+print(f"Validation MAE: {tree_val_mae:.2f}")
 
-print(
-    "Decision Tree Validation MAE:",
-    tree_val_mae,
-)
+print(f"Train RMSE: {tree_train_rmse:.2f}")
+print(f"Validation RMSE: {tree_val_rmse:.2f}")
 
-print(
-    "Random Forest Train MAE:",
-    forest_train_mae,
-)
+print(f"Train R2: {tree_train_r2:.3f}")
+print(f"Validation R2: {tree_val_r2:.3f}")
 
-print(
-    "Random Forest Validation MAE:",
-    forest_val_mae,
-)
+
+print("\nRandom Forest - Train vs validation")
+
+print(f"Train MAE: {forest_train_mae:.2f}")
+print(f"Validation MAE: {forest_val_mae:.2f}")
+
+print(f"Train RMSE: {forest_train_rmse:.2f}")
+print(f"Validation RMSE: {forest_val_rmse:.2f}")
+
+print(f"Train R2: {forest_train_r2:.3f}")
+print(f"Validation R2: {forest_val_r2:.3f}")
 
 
 # --------------------------------------------------
@@ -220,6 +305,18 @@ print(
 tree_test_predictions = tree_model.predict(X_test)
 
 tree_test_mae = mean_absolute_error(
+    y_test,
+    tree_test_predictions,
+)
+
+tree_test_rmse = np.sqrt(
+    mean_squared_error(
+        y_test,
+        tree_test_predictions,
+    )
+)
+
+tree_test_r2 = r2_score(
     y_test,
     tree_test_predictions,
 )
@@ -234,10 +331,29 @@ baseline_test_mae = mean_absolute_error(
     baseline_test_predictions,
 )
 
-print("\nSelected model test performance")
-print(f"Baseline Test MAE: {baseline_test_mae:.2f} Wh")
-print(f"Decision Tree Test MAE: {tree_test_mae:.2f} Wh")
+baseline_test_rmse = np.sqrt(
+    mean_squared_error(
+        y_test,
+        baseline_test_predictions,
+    )
+)
 
+baseline_test_r2 = r2_score(
+    y_test,
+    baseline_test_predictions,
+)
+
+print("\nSelected model test performance")
+
+print("\nBaseline")
+print(f"MAE: {baseline_test_mae:.2f} Wh")
+print(f"RMSE: {baseline_test_rmse:.2f} Wh")
+print(f"R2: {baseline_test_r2:.3f}")
+
+print("\nDecision Tree")
+print(f"MAE: {tree_test_mae:.2f} Wh")
+print(f"RMSE: {tree_test_rmse:.2f} Wh")
+print(f"R2: {tree_test_r2:.3f}")
 
 # --------------------------------------------------
 # 12. Enkel analys av distribution shift
