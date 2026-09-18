@@ -1,0 +1,14 @@
+fastapi
+pandas
+numpy
+scikit-learn
+matplotlib
+streamlit
+joblib
+jupyter
+uv
+uvicorn
+sqlalchemy
+python-dotenv
+psycopg2
+psycopg2-binary
