@@ -1,0 +1,3 @@
+DATABASE_URL=postgresql://postgres.pehjtgfvjoflhyloglno:VGw9YAUTHGMp1Rv9@aws-1-eu-west-1.pooler.supabase.com:5432/postgres
+## NEXT_PUBLIC_SUPABASE_URL=https://pehjtgfvjoflhyloglno.supabase.co
+## NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_aCLK2YozYJOH2ghyxfU6TQ_6Ndz_fmT
