@@ -4,7 +4,7 @@ from fastapi import FastAPI, Depends
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-
+from pydantic import BaseModel
 from database.connection import SessionLocal, get_db
 from database.load_csv import load_users_from_csv
 
@@ -43,5 +43,21 @@ def get_table(db: Session = Depends(get_db)):
 
 ##    table = [dict(row._mapping) for row in result]
 
+
     return {"rows": result.scalar()}
+
+# --- Pydantic-modell och Predict-endpoint för Streamlit ---
+class EnergyInput(BaseModel):
+    T1: float
+    RH_1: float
+    T2: float
+    RH_2: float
+    Windspeed: float
+    Visibility: float
+
+@app.post("/predict")
+def predict_energy(data: EnergyInput):
+    # Här kopplar du in din tränade maskininlärningsmodell sen
+    predicted_value = 145.50  
+    return {"prediction": predicted_value}
 
