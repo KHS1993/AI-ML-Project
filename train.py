@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import joblib
 
 from sklearn.metrics import (
     mean_absolute_error,
@@ -9,7 +10,7 @@ from sklearn.metrics import (
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
-
+from src.model_config import FEATURE_COLUMNS, MODEL_PATH
 
 # --------------------------------------------------
 # 1. Läs in data
@@ -35,19 +36,8 @@ df["is_weekend"] = df["day_of_week"].isin([5, 6]).astype(int)
 
 target = "Appliances"
 
-features = [
-    "T1",
-    "RH_1",
-    "T2",
-    "RH_2",
-    "T_out",
-    "RH_out",
-    "hour",
-    "day_of_week",
-    "is_weekend",
-]
 
-X = df[features]
+X = df[FEATURE_COLUMNS]
 y = df[target]
 
 
@@ -147,6 +137,32 @@ tree_model.fit(
     X_train,
     y_train,
 )
+
+MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+joblib.dump(
+    tree_model,
+    MODEL_PATH,
+)
+
+print(f"\nSaved model to: {MODEL_PATH}")
+
+loaded_tree_model = joblib.load(MODEL_PATH)
+
+original_predictions = tree_model.predict(X_val)
+loaded_predictions = loaded_tree_model.predict(X_val)
+
+predictions_match = np.array_equal(
+    original_predictions,
+    loaded_predictions,
+)
+
+print("Loaded model predictions match:", predictions_match)
+
+if not predictions_match:
+    raise RuntimeError(
+        "Loaded model predictions do not match the original model."
+    )
 
 tree_train_predictions = tree_model.predict(X_train)
 tree_val_predictions = tree_model.predict(X_val)
