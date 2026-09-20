@@ -47,6 +47,7 @@ def get_table(db: Session = Depends(get_db)):
     return {"rows": result.scalar()}
 
 # --- Pydantic-modell och Predict-endpoint för Streamlit ---
+#Tar emot inmatade mätvärden från frontend (ui.py) via POST och returnerar en prediktion
 class EnergyInput(BaseModel):
     T1: float
     RH_1: float
@@ -60,4 +61,3 @@ def predict_energy(data: EnergyInput):
     # Här kopplar du in din tränade maskininlärningsmodell sen
     predicted_value = 145.50  
     return {"prediction": predicted_value}
-
