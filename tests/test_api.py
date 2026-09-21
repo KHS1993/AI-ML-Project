@@ -51,6 +51,7 @@ def test_health_endpoint(client):
     response = client.get("/health")
 
     assert response.status_code == 200
+
     assert response.json() == {
         "status": "Running"
     }
@@ -60,6 +61,7 @@ def test_database_endpoint(client, fake_db):
     response = client.get("/test-db")
 
     assert response.status_code == 200
+
     assert response.json() == {
         "message": "Database connected!"
     }
@@ -74,6 +76,7 @@ def test_table_endpoint(client, fake_db):
     response = client.get("/test-table")
 
     assert response.status_code == 200
+
     assert response.json() == {
         "rows": 19735
     }
@@ -82,3 +85,54 @@ def test_table_endpoint(client, fake_db):
         "COUNT(*)" in query
         for query in fake_db.executed_queries
     )
+
+
+def test_predict_endpoint(client):
+    input_data = {
+        "T1": 21.0,
+        "RH_1": 35.0,
+        "T2": 20.0,
+        "RH_2": 40.0,
+        "T_out": 10.0,
+        "RH_out": 75.0,
+        "hour": 12,
+        "day_of_week": 3,
+        "is_weekend": 0,
+    }
+
+    response = client.post(
+        "/predict",
+        json=input_data,
+    )
+
+    assert response.status_code == 200
+
+    result = response.json()
+
+    assert "prediction" in result
+    assert isinstance(
+        result["prediction"],
+        (int, float),
+    )
+    assert result["unit"] == "Wh"
+
+
+def test_predict_endpoint_rejects_missing_feature(client):
+    input_data = {
+        "T1": 21.0,
+        "RH_1": 35.0,
+        "T2": 20.0,
+        "RH_2": 40.0,
+        # T_out saknas medvetet
+        "RH_out": 75.0,
+        "hour": 12,
+        "day_of_week": 3,
+        "is_weekend": 0,
+    }
+
+    response = client.post(
+        "/predict",
+        json=input_data,
+    )
+
+    assert response.status_code == 422
