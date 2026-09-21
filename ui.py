@@ -180,5 +180,5 @@ if submitted:
         except requests.exceptions.RequestException as error:
             st.error(
                 "Ett fel uppstod vid anslutning till backend: "
-                f"{error}"
+                "Kontrollera att FastAPI servern är igång och försök igen"
             )
