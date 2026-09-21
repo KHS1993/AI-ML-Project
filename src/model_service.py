@@ -15,6 +15,18 @@ def predict_energy(model, feature_values):
 
     feature_values must contain all features defined in FEATURE_COLUMNS.
     """
+
+    missing_features = [
+        feature
+        for feature in FEATURE_COLUMNS
+        if feature not in feature_values
+    ]
+
+    if missing_features:
+        raise ValueError(
+            f"Missing required features: {missing_features}"
+        )
+
     input_data = pd.DataFrame(
         [feature_values],
         columns=FEATURE_COLUMNS,
