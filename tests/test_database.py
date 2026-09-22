@@ -56,3 +56,5 @@ def test_database_import_reads_and_inserts_csv(tmp_path, monkeypatch):
     assert inserted_data[0]["Appliances"] == 60
     assert inserted_data[0]["T1"] == 19.89
     assert inserted_data[0]["RH_out"] == 92.0
+    assert inserted_data[0]["date"].hour == 17
+    assert inserted_data[0]["date"].minute == 0
