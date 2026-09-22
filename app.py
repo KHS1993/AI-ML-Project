@@ -1,10 +1,14 @@
 from datetime import datetime
+import os
 
 import requests
 import streamlit as st
 
 
-API_URL = "http://127.0.0.1:8000/predict"
+API_URL = os.getenv(
+    "API_URL",
+    "http://127.0.0.1:8000/predict",
+)
 
 
 # --------------------------------------------------
