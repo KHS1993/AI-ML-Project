@@ -4,11 +4,12 @@ numpy
 scikit-learn
 matplotlib
 streamlit
+requests
 joblib
 jupyter
-uv
 uvicorn
 sqlalchemy
 python-dotenv
-psycopg2
 psycopg2-binary
+pytest
+httpx

@@ -18,7 +18,7 @@ def load_users_from_csv(db: Session):
 
         data = [
             {
-                "date": datetime.strptime(row["date"], "%Y-%m-%d %H:%M:%S").date(),
+                "date": datetime.strptime(row["date"], "%Y-%m-%d %H:%M:%S"),
                 "Appliances": int(row["Appliances"]),
                 "lights": int(row["lights"]),
                 "T1": float(row["T1"]),
