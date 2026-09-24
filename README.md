@@ -1,4 +1,4 @@
-# AI-ML-Project
+# Appliances Energy Prediction
 
 ## Appliances Energy Prediction
 
@@ -515,8 +515,8 @@ AI-ML-Project/
 ## 1. Clone the repository
 
 ```bash
-git clone git@github.com:KHS1993/AI-ML-Project.git
-cd AI-ML-Project
+git clone https://github.com/KHS1993/appliances-energy-prediction.git
+cd appliances-energy-prediction
 ```
 
 During development, make sure you are using the intended project branch.
