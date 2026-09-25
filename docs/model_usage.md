@@ -58,13 +58,19 @@ The same feature order is defined in:
 
 `src/model_config.py`
 
-This allows both the training code and the Streamlit application to use the same model input structure.
+This allows the training code and the FastAPI backend to use the same model input structure.
 
 ---
 
 ## Loading the model
 
 The model is loaded from disk using `joblib`.
+
+The reusable loading logic is located in:
+
+`src/model_service.py`
+
+Example:
 
 ```python
 from src.model_service import load_model
@@ -76,11 +82,15 @@ No `.fit()` call is required when the saved model is used.
 
 The model has already been trained before it is saved.
 
+In the application, the FastAPI backend loads the saved model and reuses it for prediction requests.
+
 ---
 
 ## Making a prediction
 
-Predictions are made through the `predict_energy()` function.
+Predictions are made through the `predict_energy()` function in:
+
+`src/model_service.py`
 
 Example:
 
@@ -111,6 +121,8 @@ print(prediction)
 
 The returned value is the estimated appliance energy use in Wh.
 
+In the complete application, this prediction function is called by the FastAPI `/predict` endpoint.
+
 ---
 
 ## Time-based features
@@ -121,7 +133,7 @@ Three of the model features are created from the original `date` column:
 - `day_of_week`
 - `is_weekend`
 
-They are created using:
+During training they are created using:
 
 ```python
 df["hour"] = df["date"].dt.hour
@@ -135,7 +147,17 @@ df["is_weekend"] = (
 )
 ```
 
-The Streamlit application must provide these features in the same format used during model training.
+In the Streamlit application, the user selects a date and time.
+
+Streamlit converts the selected date and time into:
+
+- `hour`
+- `day_of_week`
+- `is_weekend`
+
+These values are then sent together with the other required features to the FastAPI `/predict` endpoint.
+
+The FastAPI backend validates the input before passing the feature values to the saved model.
 
 ---
 
@@ -179,23 +201,37 @@ This demonstrates that the saved model can be loaded and used independently from
 
 ---
 
-## Streamlit integration
+## Application integration
 
-The Streamlit application should use the saved model instead of training a new model when the application starts.
+The saved model is used through the FastAPI backend.
 
-The intended flow is:
+The Streamlit application does not load or train the model directly.
+
+Instead, Streamlit collects the user's input and sends it to the FastAPI `/predict` endpoint using an HTTP POST request.
+
+The prediction flow is:
 
 ```text
+User
+    ↓
 Streamlit
+    ↓
+POST /predict
+    ↓
+FastAPI
     ↓
 src/model_service.py
     ↓
 models/decision_tree_model.joblib
     ↓
-prediction
+Prediction
+    ↓
+FastAPI response
+    ↓
+Streamlit
 ```
 
-Streamlit should therefore load the model using:
+FastAPI loads the saved model using:
 
 ```python
 from src.model_service import load_model, predict_energy
@@ -203,7 +239,7 @@ from src.model_service import load_model, predict_energy
 model = load_model()
 ```
 
-and then use:
+When a prediction request is received, FastAPI sends the validated feature values to:
 
 ```python
 prediction = predict_energy(
@@ -212,13 +248,9 @@ prediction = predict_energy(
 )
 ```
 
-The Streamlit application should not call:
+The prediction is returned from FastAPI as JSON and displayed in Streamlit.
 
-```python
-model.fit(...)
-```
-
-because the model has already been trained and saved.
+The model is not retrained when the application starts or when a prediction is requested.
 
 ---
 
@@ -234,6 +266,10 @@ src/
 ├── model_config.py
 └── model_service.py
 
+database/
+└── FastAPI.py
+
+app.py
 verify_saved_model.py
 train.py
 ```
@@ -252,8 +288,33 @@ Contains:
 Contains reusable functions for:
 
 - loading the saved model
+- validating required model features
 - creating model input
 - making predictions
+
+### `FastAPI.py`
+
+Contains the backend API.
+
+It:
+
+- loads the saved model
+- validates prediction input with Pydantic
+- exposes the `/predict` endpoint
+- calls `predict_energy()`
+- returns the prediction to the frontend
+
+### `app.py`
+
+Contains the Streamlit frontend.
+
+It:
+
+- collects user input
+- creates the time-based features
+- sends input to FastAPI
+- receives the prediction
+- displays the predicted energy consumption
 
 ### `verify_saved_model.py`
 
@@ -277,6 +338,14 @@ The following requirements have been verified:
 - The model can make predictions from a separate script without retraining.
 - The required features and their units are documented.
 - The feature order is shared through `model_config.py`.
-- The model can be integrated into Streamlit through `model_service.py`.
+- FastAPI loads and uses the saved model through `model_service.py`.
+- Streamlit sends user input to the FastAPI `/predict` endpoint.
+- The model is not retrained for every prediction.
 
-This means the saved model is ready to be used by the Streamlit application without retraining.
+The complete application flow is:
+
+```text
+Streamlit → FastAPI → model_service → saved model → prediction → FastAPI → Streamlit
+```
+
+This means the saved model can be reused by the FastAPI backend without retraining, while Streamlit acts as the user interface for making prediction requests.

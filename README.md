@@ -469,7 +469,7 @@ The project uses:
 # Project structure
 
 ```text
-AI-ML-Project/
+appliances-energy-prediction/
 ├── app.py
 ├── train.py
 ├── verify_saved_model.py
@@ -519,15 +519,6 @@ git clone https://github.com/KHS1993/appliances-energy-prediction.git
 cd appliances-energy-prediction
 ```
 
-During development, make sure you are using the intended project branch.
-
-For the current development version:
-
-```bash
-git switch dev
-```
-
----
 
 ## 2. Create a virtual environment
 
